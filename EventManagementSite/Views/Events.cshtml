@@ -1,0 +1,27 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Master";
+}
+
+<h1>Upcoming Events</h1>
+<ul>
+    @foreach (var eventNode in Model.Children)
+    {
+        var eventTitle = eventNode.Value<string>("title");
+        var eventDate = eventNode.Value<DateTime>("date");
+        var eventLocation = eventNode.Value<string>("location");
+        var eventDescription = eventNode.Value<string>("description");
+        var eventImage = eventNode.Value<IPublishedContent>("image");
+        
+        <li>
+            <h2>@eventTitle</h2>
+            <p>Date: @eventDate.ToString("MMMM dd, yyyy")</p>
+            <p>Location: @eventLocation</p>
+            <p>@Html.Raw(eventDescription)</p>
+            @if (eventImage != null)
+            {
+                <img src="@eventImage.Url()" alt="@eventTitle Image" style="max-width: 200px;" />
+            }
+        </li>
+    }
+</ul>
