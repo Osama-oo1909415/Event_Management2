@@ -1,0 +1,15 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventsPage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+<h1>Upcoming Events</h1>
+
+<ul>
+    @foreach (var anEvent in Model.Children<ContentModels.Event>())
+    {
+        <li>
+            <h2>@anEvent.EventTitle</h2>
+            <p><strong>Date:</strong> @anEvent.StartDateTime.ToString("MMMM dd, yyyy")</p>
+            <div>@anEvent.EventDescription</div>
+        </li>
+    }
+</ul>
