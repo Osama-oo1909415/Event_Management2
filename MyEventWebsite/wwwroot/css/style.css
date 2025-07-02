@@ -1,0 +1,31 @@
+/* General body styling */
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Center the main content */
+main {
+    max-width: 800px;
+    margin: 20px auto; /* centers the content on the page */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* Style the event title */
+h1 {
+    color: #007bff; /* A nice blue color */
+}
+
+/* Style the event image */
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px; /* Adds slightly rounded corners */
+}

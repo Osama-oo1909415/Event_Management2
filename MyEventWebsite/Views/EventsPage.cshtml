@@ -7,9 +7,9 @@
     @foreach (var anEvent in Model.Children<ContentModels.Event>())
     {
         <li>
-            <h2>@anEvent.EventTitle</h2>
-            <p><strong>Date:</strong> @anEvent.StartDateTime.ToString("MMMM dd, yyyy")</p>
-            <div>@anEvent.EventDescription</div>
+            @* Add a link to the event's page *@
+            <h2><a href="@anEvent.Url()">@anEvent.Value("eventTitle")</a></h2>
+            <p><strong>Date:</strong> @anEvent.Value("startDateTime", fallback: Fallback.ToDefaultValue, defaultValue: DateTime.Now.ToString("MMMM dd, yyyy"))</p>
         </li>
     }
 </ul>
