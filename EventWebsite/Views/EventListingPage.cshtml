@@ -14,14 +14,23 @@
     // Order the events by date
     var sortedEvents = upcomingEvents.OrderBy(x => x.Value<DateTime>("eventDateTime"));
 
-    // Prepare event locations for the map
+    // Prepare event locations for the map using longitude and latitude properties
     var eventLocations = sortedEvents
-        .Where(x => x.HasValue("eventLocation"))
-        .Select(x => new {
-            Title = x.Value("eventTitle") ?? x.Name,
-            Lat = x.Value<dynamic>("eventLocation")?.latitude ?? 0,
-            Lng = x.Value<dynamic>("eventLocation")?.longitude ?? 0
-        }).ToList();
+        .Where(x => x.HasValue("longitude") && x.HasValue("latitude"))
+        .Select(x => {
+            double lng, lat;
+            var lngParsed = double.TryParse(x.Value<string>("longitude"), out lng);
+            var latParsed = double.TryParse(x.Value<string>("latitude"), out lat);
+            return (lngParsed && latParsed)
+                ? new {
+                    Title = x.Value("eventTitle") ?? x.Name,
+                    Lat = lat,
+                    Lng = lng
+                }
+                : null;
+        })
+        .Where(x => x != null)
+        .ToList();
 }
 
 <!-- Hero Section -->
@@ -98,7 +107,7 @@
                 </div>
             }
         </div>
-        <!-- Mapbox Map for Event Locations (moved here) -->
+        <!-- Map for Event Locations (Leaflet) -->
         <div class="row">
             <div class="col-12">
                 <div id="eventsMap" style="height: 400px; width: 100%; border-radius: 12px;"></div>
@@ -106,33 +115,19 @@
         </div>
     </main>
 </div>
-<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
-<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+e2H1LG2Q6F2zLk4k6lQ+QbF3p9Oa6l2l9gKQ+0Xw=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1jRVv6Gk6f+gQJbFQ1QKQ1QKQ1QKQ1QKQ1QKQ1QKQ=" crossorigin=""></script>
 <script>
-    mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // TODO: Replace with your real token
     var eventLocations = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(eventLocations));
-    if (eventLocations.length > 0) {
-        var map = new mapboxgl.Map({
-            container: 'eventsMap',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [eventLocations[0].Lng, eventLocations[0].Lat],
-            zoom: 10
-        });
-        eventLocations.forEach(function(ev) {
-            if(ev.Lat && ev.Lng) {
-                new mapboxgl.Marker()
-                    .setLngLat([ev.Lng, ev.Lat])
-                    .setPopup(new mapboxgl.Popup().setText(ev.Title))
-                    .addTo(map);
-            }
-        });
-    } else {
-        // If no events, still initialize the map to a default location
-        var map = new mapboxgl.Map({
-            container: 'eventsMap',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [51.5, 25.3], // Default to Doha
-            zoom: 10
-        });
-    }
+    var mapCenter = eventLocations.length > 0 ? [eventLocations[0].Lat, eventLocations[0].Lng] : [25.3, 51.5]; // Default to Doha
+    var map = L.map('eventsMap').setView(mapCenter, 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    eventLocations.forEach(function(ev) {
+        if(ev.Lat && ev.Lng) {
+            L.marker([ev.Lat, ev.Lng]).addTo(map)
+                .bindPopup(ev.Title);
+        }
+    });
 </script>

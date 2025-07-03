@@ -5,10 +5,12 @@
 @{
     Layout = "_Layout";
     ViewBag.Title = Model.Value("eventTitle");
-    
-    // Get the featured image from the media picker
+    var eventTitle = Model.Value<string>("eventTitle");
+    var eventDate = Model.Value<DateTime?>("eventDateTime");
     var featuredImage = Model.Value<IPublishedContent>("featuredImage");
-    var eventDate = Model.Value<DateTime>("eventDate");
+    var eventCategory = Model.Value<IEnumerable<string>>("eventCategory");
+    var longitude = Model.Value<string>("longitude");
+    var latitude = Model.Value<string>("latitude");
 }
 
 <div class="container mt-4">
@@ -16,8 +18,10 @@
         <div class="col-lg-8 mx-auto">
             <!-- Event Header -->
             <div class="text-center mb-4">
-                <h1 class="display-4 mb-3">@Model.Value("eventTitle")</h1>
-                
+                @if (!string.IsNullOrEmpty(eventTitle))
+                {
+                    <h1 class="display-4 mb-3">@eventTitle</h1>
+                }
                 @if (featuredImage != null)
                 {
                     <div class="mb-4">
@@ -35,18 +39,80 @@
                                 <i class="fas fa-calendar-alt text-primary me-2"></i>
                                 Event Date
                             </h5>
-                            <p class="card-text">@eventDate.ToString("MMMM dd, yyyy 'at' h:mm tt")</p>
+                            <p class="card-text">
+                                @if (eventDate.HasValue && eventDate.Value > DateTime.MinValue)
+                                {
+                                    @eventDate.Value.ToString("MMMM dd, yyyy 'at' h:mm tt")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No date set</span>
+                                }
+                            </p>
                         </div>
                         <div class="col-md-6">
                             <h5 class="card-title">
                                 <i class="fas fa-map-marker-alt text-primary me-2"></i>
                                 Location
                             </h5>
-                            <p class="card-text">@Model.Value("location")</p>
+                            <p class="card-text">
+                                @if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
+                                {
+                                    <span>Latitude: @latitude, Longitude: @longitude</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No location set</span>
+                                }
+                            </p>
                         </div>
                     </div>
+                    @if (eventCategory != null && eventCategory.Any())
+                    {
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h5 class="card-title">
+                                    <i class="fas fa-tags text-primary me-2"></i>
+                                    Categories
+                                </h5>
+                                <p class="card-text">
+                                    @string.Join(", ", eventCategory)
+                                </p>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
+
+            <!-- Event Map (Leaflet) -->
+            @if (!string.IsNullOrEmpty(latitude) && !string.IsNullOrEmpty(longitude))
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-map text-primary me-2"></i>
+                            Event Location Map
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="eventMap" style="height: 300px; width: 100%; border-radius: 12px;"></div>
+                    </div>
+                </div>
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+                <script>
+                    var lat = parseFloat('@latitude'.replace(',', '.'));
+                    var lng = parseFloat('@longitude'.replace(',', '.'));
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        var map = L.map('eventMap').setView([lat, lng], 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        }).addTo(map);
+                        L.marker([lat, lng]).addTo(map)
+                            .bindPopup('@eventTitle');
+                    }
+                </script>
+            }
 
             <!-- Event Description -->
             <div class="card">
@@ -57,8 +123,14 @@
                     </h5>
                 </div>
                 <div class="card-body">
-                    @* Use Html.Raw to render the HTML from the Rich Text Editor *@
-                    @Html.Raw(Model.Value<HtmlString>("description"))
+                    @if (Model.HasValue("description"))
+                    {
+                        @Html.Raw(Model.Value("description"))
+                    }
+                    else
+                    {
+                        <span class="text-muted">No description provided.</span>
+                    }
                 </div>
             </div>
 
