@@ -1,0 +1,25 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventPage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+@{
+    // Get the featured image from the media picker
+    var featuredImage = Model.Value<IPublishedContent>("featuredImage");
+}
+
+<h1>@Model.Value("eventTitle")</h1>
+
+@if (featuredImage!= null)
+{
+    <img src="@featuredImage.Url()" alt="@featured-image.Name" style="max-width: 100%; height: auto;" />
+}
+
+<div>
+    <p><strong>Date:</strong> @Model.Value<DateTime>("eventDate").ToString("MMMM dd, yyyy 'at' h:mm tt")</p>
+    <p><strong>Location:</strong> @Model.Value("location")</p>
+</div>
+
+<div>
+    @* Use Html.Raw to render the HTML from the Rich Text Editor *@
+    @Html.Raw(Model.Value<IHtmlString>("description"))
+</div>

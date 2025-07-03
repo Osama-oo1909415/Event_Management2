@@ -1,0 +1,35 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventListingPage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+@{
+    Layout = "_Layout"; // Or your main layout file
+    
+    // Get all "Event Page" children
+    var events = Model.Children<EventPage>();
+
+    // Filter for upcoming events using .Value()
+    var upcomingEvents = events.Where(x => x.Value<DateTime>("eventDate") >= DateTime.Today);
+
+    // Order the events by date using .Value()
+    var sortedEvents = upcomingEvents.OrderBy(x => x.Value<DateTime>("eventDate"));
+}
+
+<h1>Upcoming Events</h1>
+
+@if (sortedEvents.Any())
+{
+    <ul>
+        @foreach (var evt in sortedEvents)
+        {
+            <li>
+                <h3><a href="@evt.Url()">@evt.Value("eventTitle")</a></h3>
+                <p><strong>Date:</strong> @(evt.Value<DateTime>("eventDate").ToString("D"))</p>
+                <p><strong>Location:</strong> @evt.Value("location")</p>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>There are no upcoming events at this time.</p>
+}
