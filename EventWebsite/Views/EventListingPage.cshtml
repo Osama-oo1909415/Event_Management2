@@ -1,11 +1,12 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventListingPage>
-@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 
 @{
-    Layout = "_Layout"; // Or your main layout file
+    Layout = "_Layout";
+    ViewBag.Title = "Upcoming Events";
     
     // Get all "Event Page" children
-    var events = Model.Children<EventPage>();
+    var events = Model.Children();
 
     // Filter for upcoming events using .Value()
     var upcomingEvents = events.Where(x => x.Value<DateTime>("eventDate") >= DateTime.Today);
@@ -14,22 +15,81 @@
     var sortedEvents = upcomingEvents.OrderBy(x => x.Value<DateTime>("eventDate"));
 }
 
-<h1>Upcoming Events</h1>
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">Upcoming Events</h1>
+                <p class="lead">Discover amazing events happening in your area</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-@if (sortedEvents.Any())
-{
-    <ul>
-        @foreach (var evt in sortedEvents)
+<!-- Events Listing -->
+<div class="container mt-5">
+    <div class="row">
+        @if (sortedEvents.Any())
         {
-            <li>
-                <h3><a href="@evt.Url()">@evt.Value("eventTitle")</a></h3>
-                <p><strong>Date:</strong> @(evt.Value<DateTime>("eventDate").ToString("D"))</p>
-                <p><strong>Location:</strong> @evt.Value("location")</p>
-            </li>
+            @foreach (var evt in sortedEvents)
+            {
+                var featuredImage = evt.Value<IPublishedContent>("featuredImage");
+                var eventDate = evt.Value<DateTime>("eventDate");
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card event-card h-100">
+                        @if (featuredImage != null)
+                        {
+                            <img src="@featuredImage.Url()" class="card-img-top" alt="@featuredImage.Name" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                            </div>
+                        }
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@evt.Value("eventTitle")</h5>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    @eventDate.ToString("MMM dd, yyyy")
+                                </small>
+                                <br>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    @eventDate.ToString("h:mm tt")
+                                </small>
+                                <br>
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    @evt.Value("location")
+                                </small>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <a href="@evt.Url()" class="btn btn-primary w-100">
+                                    View Details
+                                    <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         }
-    </ul>
-}
-else
-{
-    <p>There are no upcoming events at this time.</p>
-}
+        else
+        {
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                    <h3 class="text-muted">No Upcoming Events</h3>
+                    <p class="text-muted">There are no upcoming events at this time. Please check back later!</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>

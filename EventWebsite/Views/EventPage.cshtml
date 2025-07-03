@@ -1,25 +1,74 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventPage>
-@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using Microsoft.AspNetCore.Html;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 
 @{
+    Layout = "_Layout";
+    ViewBag.Title = Model.Value("eventTitle");
+    
     // Get the featured image from the media picker
     var featuredImage = Model.Value<IPublishedContent>("featuredImage");
+    var eventDate = Model.Value<DateTime>("eventDate");
 }
 
-<h1>@Model.Value("eventTitle")</h1>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Event Header -->
+            <div class="text-center mb-4">
+                <h1 class="display-4 mb-3">@Model.Value("eventTitle")</h1>
+                
+                @if (featuredImage != null)
+                {
+                    <div class="mb-4">
+                        <img src="@featuredImage.Url()" alt="@featuredImage.Name" class="img-fluid rounded shadow" style="max-height: 400px; width: 100%; object-fit: cover;" />
+                    </div>
+                }
+            </div>
 
-@if (featuredImage!= null)
-{
-    <img src="@featuredImage.Url()" alt="@featured-image.Name" style="max-width: 100%; height: auto;" />
-}
+            <!-- Event Details Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="card-title">
+                                <i class="fas fa-calendar-alt text-primary me-2"></i>
+                                Event Date
+                            </h5>
+                            <p class="card-text">@eventDate.ToString("MMMM dd, yyyy 'at' h:mm tt")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="card-title">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                Location
+                            </h5>
+                            <p class="card-text">@Model.Value("location")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<div>
-    <p><strong>Date:</strong> @Model.Value<DateTime>("eventDate").ToString("MMMM dd, yyyy 'at' h:mm tt")</p>
-    <p><strong>Location:</strong> @Model.Value("location")</p>
-</div>
+            <!-- Event Description -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-primary me-2"></i>
+                        Event Description
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @* Use Html.Raw to render the HTML from the Rich Text Editor *@
+                    @Html.Raw(Model.Value<HtmlString>("description"))
+                </div>
+            </div>
 
-<div>
-    @* Use Html.Raw to render the HTML from the Rich Text Editor *@
-    @Html.Raw(Model.Value<IHtmlString>("description"))
+            <!-- Back to Events Button -->
+            <div class="text-center mt-4">
+                <a href="/events" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Back to Events
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
