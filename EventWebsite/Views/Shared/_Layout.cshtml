@@ -10,7 +10,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Event Management</title>
-    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -61,32 +62,25 @@
     
     @await SmidgeHelper.CssHereAsync()
 </head>
-<body>
+<body style="font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f6f7fb;">
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top" style="z-index: 1000;">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-calendar-alt me-2"></i>
-                Event Management
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <i class="fas fa-calendar-alt"></i>
+                <span style="font-weight:700;font-size:1.7rem;letter-spacing:1px;">Event Management</span>
             </a>
-            
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/events">Events</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contact">Contact</a>
+                        <a class="btn btn-primary px-3 ms-2" href="/events/create" style="font-weight:600;">+ Create Event</a>
                     </li>
                 </ul>
             </div>
@@ -99,27 +93,33 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer bg-light">
+    <footer class="footer" style="background:#232946;color:#fff;padding:48px 0 24px 0;margin-top:60px;">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Event Management System</h5>
-                    <p class="text-muted">Manage and discover amazing events in your area.</p>
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <h5 style="font-weight:600;">Event Management System</h5>
+                    <p class="text-light">Manage and discover amazing events in your area.</p>
                 </div>
                 <div class="col-md-6">
-                    <h5>Quick Links</h5>
+                    <h5 style="font-weight:600;">Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/" class="text-muted text-decoration-none">Home</a></li>
-                        <li><a href="/events" class="text-muted text-decoration-none">Events</a></li>
-                        <li><a href="/about" class="text-muted text-decoration-none">About</a></li>
-                        <li><a href="/contact" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="/" class="text-light text-decoration-none">Home</a></li>
+                        <li><a href="/events" class="text-light text-decoration-none">Events</a></li>
+                        <li><a href="/about" class="text-light text-decoration-none">About</a></li>
+                        <li><a href="/contact" class="text-light text-decoration-none">Contact</a></li>
                     </ul>
+                    <div class="mt-3">
+                        <a href="#" class="text-light me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-light me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-linkedin fa-lg"></i></a>
+                    </div>
                 </div>
             </div>
-            <hr>
+            <hr style="border-color:rgba(255,255,255,0.1);">
             <div class="row">
                 <div class="col-12 text-center">
-                    <p class="text-muted mb-0">&copy; @DateTime.Now.Year Event Management. All rights reserved.</p>
+                    <p class="text-light mb-0" style="font-size:0.95rem;">&copy; @DateTime.Now.Year Event Management. All rights reserved.</p>
                 </div>
             </div>
         </div>
@@ -134,5 +134,25 @@
     @await SmidgeHelper.JsHereAsync()
     
     @await RenderSectionAsync("Scripts", required: false)
+    <style>
+        .navbar {
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .footer h5 {
+            letter-spacing: 1px;
+        }
+        .footer ul li {
+            margin-bottom: 0.5rem;
+        }
+        .footer .fab {
+            transition: color 0.2s;
+        }
+        .footer .fab:hover {
+            color: #a0a0ff;
+        }
+    </style>
 </body>
 </html>
