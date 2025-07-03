@@ -5,15 +5,17 @@
     Layout = "_Layout";
     ViewBag.Title = "Upcoming Events";
     
-    // Get all "Event Page" children
-    var events = Model.Children();
+    // Get all event pages under this node (recursively)
+    var events = Model.Descendants().Where(x => x.ContentType.Alias == "eventPage");
 
-    // Filter for upcoming events using .Value()
-    var upcomingEvents = events.Where(x => x.Value<DateTime>("eventDate") >= DateTime.Today);
+    // Filter for upcoming events using the correct property alias
+    var upcomingEvents = events.Where(x => x.Value<DateTime>("eventDateTime") >= DateTime.Today);
 
-    // Order the events by date using .Value()
-    var sortedEvents = upcomingEvents.OrderBy(x => x.Value<DateTime>("eventDate"));
+    // Order the events by date
+    var sortedEvents = upcomingEvents.OrderBy(x => x.Value<DateTime>("eventDateTime"));
 }
+
+<p>Found @sortedEvents.Count() events.</p>
 
 <!-- Hero Section -->
 <div class="hero-section">
@@ -35,7 +37,7 @@
             @foreach (var evt in sortedEvents)
             {
                 var featuredImage = evt.Value<IPublishedContent>("featuredImage");
-                var eventDate = evt.Value<DateTime>("eventDate");
+                var eventDate = evt.Value<DateTime>("eventDateTime");
                 
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card event-card h-100">
