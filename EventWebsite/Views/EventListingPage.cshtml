@@ -13,9 +13,16 @@
 
     // Order the events by date
     var sortedEvents = upcomingEvents.OrderBy(x => x.Value<DateTime>("eventDateTime"));
-}
 
-<p>Found @sortedEvents.Count() events.</p>
+    // Prepare event locations for the map
+    var eventLocations = sortedEvents
+        .Where(x => x.HasValue("eventLocation"))
+        .Select(x => new {
+            Title = x.Value("eventTitle") ?? x.Name,
+            Lat = x.Value<dynamic>("eventLocation")?.latitude ?? 0,
+            Lng = x.Value<dynamic>("eventLocation")?.longitude ?? 0
+        }).ToList();
+}
 
 <!-- Hero Section -->
 <div class="hero-section">
@@ -31,67 +38,101 @@
 
 <!-- Events Listing -->
 <div class="container mt-5">
-    <div class="row">
-        @if (sortedEvents.Any())
-        {
-            @foreach (var evt in sortedEvents)
+    <main>
+        <div class="row">
+            @if (sortedEvents.Any())
             {
-                var featuredImage = evt.Value<IPublishedContent>("featuredImage");
-                var eventDate = evt.Value<DateTime>("eventDateTime");
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card event-card h-100">
-                        @if (featuredImage != null)
-                        {
-                            <img src="@featuredImage.Url()" class="card-img-top" alt="@featuredImage.Name" style="height: 200px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="fas fa-calendar-alt fa-3x text-muted"></i>
-                            </div>
-                        }
-                        
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">@evt.Value("eventTitle")</h5>
-                            
-                            <div class="mb-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar-alt me-1"></i>
-                                    @eventDate.ToString("MMM dd, yyyy")
-                                </small>
-                                <br>
-                                <small class="text-muted">
-                                    <i class="fas fa-clock me-1"></i>
-                                    @eventDate.ToString("h:mm tt")
-                                </small>
-                                <br>
-                                <small class="text-muted">
-                                    <i class="fas fa-map-marker-alt me-1"></i>
-                                    @evt.Value("location")
-                                </small>
-                            </div>
-                            
-                            <div class="mt-auto">
-                                <a href="@evt.Url()" class="btn btn-primary w-100">
-                                    View Details
-                                    <i class="fas fa-arrow-right ms-1"></i>
-                                </a>
+                @foreach (var evt in sortedEvents)
+                {
+                    var featuredImage = evt.Value<IPublishedContent>("featuredImage");
+                    var eventDate = evt.Value<DateTime>("eventDateTime");
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card event-card h-100">
+                            @if (featuredImage != null)
+                            {
+                                <img src="@featuredImage.Url()" class="card-img-top" alt="@featuredImage.Name" style="height: 200px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                                </div>
+                            }
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">@evt.Value("eventTitle")</h5>
+                                <div class="mb-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        @eventDate.ToString("MMM dd, yyyy")
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        @eventDate.ToString("h:mm tt")
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                        @evt.Value("location")
+                                    </small>
+                                </div>
+                                <div class="mt-auto">
+                                    <a href="@evt.Url()" class="btn btn-primary w-100">
+                                        View Details
+                                        <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                        <h3 class="text-muted">No Upcoming Events</h3>
+                        <p class="text-muted">There are no upcoming events at this time. Please check back later!</p>
+                    </div>
                 </div>
             }
-        }
-        else
-        {
+        </div>
+        <!-- Mapbox Map for Event Locations (moved here) -->
+        <div class="row">
             <div class="col-12">
-                <div class="text-center py-5">
-                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-                    <h3 class="text-muted">No Upcoming Events</h3>
-                    <p class="text-muted">There are no upcoming events at this time. Please check back later!</p>
-                </div>
+                <div id="eventsMap" style="height: 400px; width: 100%; border-radius: 12px;"></div>
             </div>
-        }
-    </div>
+        </div>
+    </main>
 </div>
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
+<script>
+    mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // TODO: Replace with your real token
+    var eventLocations = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(eventLocations));
+    if (eventLocations.length > 0) {
+        var map = new mapboxgl.Map({
+            container: 'eventsMap',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [eventLocations[0].Lng, eventLocations[0].Lat],
+            zoom: 10
+        });
+        eventLocations.forEach(function(ev) {
+            if(ev.Lat && ev.Lng) {
+                new mapboxgl.Marker()
+                    .setLngLat([ev.Lng, ev.Lat])
+                    .setPopup(new mapboxgl.Popup().setText(ev.Title))
+                    .addTo(map);
+            }
+        });
+    } else {
+        // If no events, still initialize the map to a default location
+        var map = new mapboxgl.Map({
+            container: 'eventsMap',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [51.5, 25.3], // Default to Doha
+            zoom: 10
+        });
+    }
+</script>
