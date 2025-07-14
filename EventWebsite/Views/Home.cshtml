@@ -1,0 +1,26 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Home>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+
+@{
+    // This line tells the Home page to use your main layout file
+    Layout = "Shared/_Layout.cshtml";
+    
+    // This sets the title in the browser tab
+    ViewData["Title"] = Model.Name; 
+}
+
+<div class="hero-section text-center">
+    <div class="container">
+        <h1>@Model.Value("title")</h1>
+        <p class="lead">@Model.Value("subtitle")</p>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            @Model.Value("bodyText")
+        </div>
+    </div>
+</div>

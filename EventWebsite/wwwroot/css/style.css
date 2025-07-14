@@ -1,0 +1,77 @@
+/* General Body Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f7fc;
+    color: #333;
+}
+
+/* Header Styles */
+.header {
+    background-color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.header__title {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+/* Navigation Styles */
+.nav {
+    display: flex;
+    align-items: center;
+}
+
+.nav__link {
+    text-decoration: none;
+    color: #555;
+    margin: 0 15px;
+    font-weight: 500;
+}
+
+.nav__link:hover {
+    color: #6a5acd; /* A shade of purple */
+}
+
+.nav__button {
+    background-color: #6a5acd; /* A shade of purple */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+/* Hero Section Styles */
+.hero {
+    background: linear-gradient(90deg, #8A2BE2, #4A00E0); /* Blue-Violet to a darker purple */
+    color: white;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.hero__title {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.hero__subtitle {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+
+/* Main Content Area */
+.main-content {
+    padding: 40px;
+    background-color: white;
+    max-width: 1200px;
+    margin: 40px auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
