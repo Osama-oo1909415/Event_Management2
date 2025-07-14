@@ -1,0 +1,48 @@
+@using EventWebsite.ViewModels
+@model CreateEventViewModel
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@{
+    // This is the corrected security check for the page
+    if (User.Identity.IsAuthenticated && User.IsInRole("Admins"))
+    {
+        // USER IS AN ADMIN - SHOW THE FORM
+        Layout = "Shared/_Layout.cshtml";
+        ViewData["Title"] = "Create a New Event";
+
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-body p-5">
+                            <h2 class="card-title text-center mb-4">Create Your Event</h2>
+
+                            @if (TempData["SuccessMessage"] != null)
+                            {
+                                <div class="alert alert-success" role="alert">
+                                    @TempData["SuccessMessage"]
+                                </div>
+                            }
+
+                            @await Html.PartialAsync("CreateEventForm", new CreateEventViewModel())
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        // USER IS NOT AN ADMIN - SHOW ACCESS DENIED
+        Layout = "Shared/_Layout.cshtml";
+        ViewData["Title"] = "Access Denied";
+
+        <div class="container my-5 text-center">
+            <div class="alert alert-danger">
+                <h2 class="alert-heading">Access Denied</h2>
+                <p>You do not have permission to view this page. Please log in as an administrator to create an event.</p>
+            </div>
+        </div>
+    }
+}

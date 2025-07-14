@@ -1,0 +1,30 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Shared/_Layout.cshtml";
+    ViewData["Title"] = "Create a New Event";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">Create Your Event</h2>
+
+                    @* Check for the success message from the controller *@
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success" role="alert">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    @* This is where the form will be rendered *@
+                    @await Html.PartialAsync("CreateEventForm", new EventWebsite.ViewModels.CreateEventViewModel())
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
