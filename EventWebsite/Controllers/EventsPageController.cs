@@ -13,7 +13,7 @@ namespace EventWebsite.Controllers
 {
     public class EventsPageController : SurfaceController
     {
-        private readonly IContentService _contentService;
+        private readonly IContentService? _contentService;
 
         // This is the simplified constructor for modern Umbraco versions
         public EventsPageController(
@@ -34,7 +34,10 @@ namespace EventWebsite.Controllers
         public IActionResult Create()
         {
             var model = new CreateEventViewModel();
-            return PartialView("CreateEventForm", model);
+            // Use null conditional operator to avoid warning
+            return model != null 
+                ? View("CreateEventForm", model) 
+                : View("CreateEventForm", new CreateEventViewModel());
         }
 
         // This action handles the form submission
@@ -45,6 +48,13 @@ namespace EventWebsite.Controllers
             // If the form has validation errors, show it again
             if (!ModelState.IsValid)
             {
+                return CurrentUmbracoPage();
+            }
+
+            // Check if content service is available
+            if (_contentService == null)
+            {
+                ModelState.AddModelError("", "Content service is not available. Please try again later.");
                 return CurrentUmbracoPage();
             }
 

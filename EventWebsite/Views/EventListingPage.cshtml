@@ -2,14 +2,42 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 
 @{
-    Layout = "_Layout";
+    Layout = "Shared/_Layout.cshtml";
     ViewBag.Title = "Upcoming Events";
     
-    // Get all event pages under this node (recursively)
-    var events = Model.Descendants().Where(x => x.ContentType.Alias == "eventPage");
-
+    // Get events from controller (preferred) or use our own logic as fallback
+    var eventsFromController = ViewData["AllEvents"] as List<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>;
+    
+    // If controller didn't provide events, try multiple ways to get them
+    List<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent> events;
+    
+    if (eventsFromController != null && eventsFromController.Any()) 
+    {
+        // Use events from controller
+        events = eventsFromController;
+        System.Diagnostics.Debug.WriteLine($"Using {events.Count} events from controller");
+    }
+    else
+    {
+        // Try directly from descendants by type
+        var rootEvents = Model?.Root()?.DescendantsOfType("event")?.Where(x => x.IsPublished())?.ToList() 
+            ?? new List<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>();
+            
+        // Fallback to any content with "event" in the type name
+        if (!rootEvents.Any())
+        {
+            rootEvents = Model?.Root()?.Descendants()
+                ?.Where(x => (x.ContentType.Alias.Contains("event") || x.ContentType.Alias.Contains("Event")) && x.IsPublished())
+                ?.ToList() 
+                ?? new List<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>();
+        }
+        
+        events = rootEvents;
+        System.Diagnostics.Debug.WriteLine($"Found {events.Count} events directly from content tree");
+    }
+    
     // Filter for upcoming events using the correct property alias
-    var upcomingEvents = events.Where(x => x.Value<DateTime>("eventDateTime") >= DateTime.Today);
+    var upcomingEvents = events.Where(x => x.HasValue("eventDateTime") && x.Value<DateTime>("eventDateTime") >= DateTime.Today).ToList();
 
     // Order the events by date
     var sortedEvents = upcomingEvents.OrderBy(x => x.Value<DateTime>("eventDateTime"));
@@ -149,3 +177,59 @@
         }
     });
 </script>
+
+<!-- Debug Information Section (Remove in production) -->
+@if(Context.Request.Query.ContainsKey("debug"))
+{
+    <div class="container mt-5 p-4 bg-light rounded">
+        <h4>Debug Information</h4>
+        <hr>
+        <p><strong>Total Events Found:</strong> @events.Count()</p>
+        <p><strong>Upcoming Events:</strong> @upcomingEvents.Count()</p>
+        <p><strong>Sorted Events:</strong> @sortedEvents.Count()</p>
+        
+        <h5 class="mt-4">Event Data:</h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Title</th>
+                        <th>Date/Time</th>
+                        <th>Content Type</th>
+                        <th>Published</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var evt in events)
+                    {
+                        <tr>
+                            <td>@evt.Id</td>
+                            <td>@evt.Name</td>
+                            <td>@evt.Value("eventTitle")</td>
+                            <td>@(evt.HasValue("eventDateTime") ? evt.Value<DateTime>("eventDateTime").ToString() : "No Date")</td>
+                            <td>@evt.ContentType.Alias</td>
+                            <td>@evt.IsPublished()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        
+        <h5 class="mt-4">Page Model Properties:</h5>
+        <ul>
+            @if (Model != null)
+            {
+                foreach (var prop in Model.Properties)
+                {
+                    <li>@prop.Alias: @prop.GetValue()</li>
+                }
+            }
+            else
+            {
+                <li>Model is null</li>
+            }
+        </ul>
+    </div>
+}

@@ -2,6 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // This explicitly tells the application to scan for controller classes like EventsController.
 builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 
 // This part creates the Umbraco application builder
 builder.CreateUmbracoBuilder()

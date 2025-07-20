@@ -44,7 +44,7 @@
                     <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
                     
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admins"))
+                    @if (User?.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Admins"))
                     {
                         <li class="nav-item">
                             <a class="btn btn-primary px-3 ms-2" href="/create-event/" style="font-weight:600;">+ Create Event</a>
